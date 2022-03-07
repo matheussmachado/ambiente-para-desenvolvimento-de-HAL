@@ -6,6 +6,9 @@
 
 // DEFINIÇÃO DOS DISPOSITIVOS A SEREM MAPEADOS NA IMPLEMENTAÇÃO DA HAL EXTERNA
 //==============================================================================
+#ifndef HAL_H
+#define HAL_H
+
 typedef enum output_devices_identifiers {
   LED_A, LED_B, LED_C, LED_D, LED_E, END_OUTPUT_DEVICES
 } out_id;
@@ -26,3 +29,4 @@ void one_sec_interrupt_Service(void *routine);
 void push_button_A_interrupt_Service(void *routine);
 void push_button_B_interrupt_Service(void *routine);
 //==============================================================================
+#endif

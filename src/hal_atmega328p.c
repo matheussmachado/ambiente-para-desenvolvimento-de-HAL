@@ -1,28 +1,15 @@
 /* IMPLEMENTAÇÃO DE UMA HAL PARA O ATMEGA328P, OBEDECENDO A INTERFACE EXPOSTA EM hal.h */
 
-#define NUM_OUTPUT_DEVICES END_OUTPUT_DEVICES
-#define NUM_INPUT_DEVICES END_INPUT_DEVICES
 
 #include "../include/hal.h"
+#include "../include/GPIO_Pin_Register_Model.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
 // MAPEAMENTO DOS DISPOSITIVOS EM PINOS DE I/O E SETUP
 //==============================================================================
-typedef struct {
-  volatile uint8_t* register_pointer; // no AVR
-  uint8_t pin;
-} GPIO_Pin_Register;
-
-typedef GPIO_Pin_Register output_devices_pin_mapper[NUM_OUTPUT_DEVICES];
-typedef GPIO_Pin_Register input_devices_pin_mapper[NUM_INPUT_DEVICES];
-
 output_devices_pin_mapper out_mp;
 input_devices_pin_mapper in_mp;
-
-#define MAP_IO(devices_pin_mapper, device_id, register_address, pin) ({\
-  devices_pin_mapper[device_id] = (GPIO_Pin_Register) {register_address, pin};\
-}) 
 
 void setup_output_devices_pin_mapper(void) {
   MAP_IO(out_mp, LED_A, &PORTB, PB0);
@@ -66,19 +53,19 @@ void setup_hardware_Service(void) {
 // ACESSO À BITS
 //==============================================================================
 __attribute((always_inline)) inline void set_output_Service(out_id id) {
-  *(out_mp[id].register_pointer) |= (1 << out_mp[id].pin);
+  *(uint8_t*)(out_mp[id].register_pointer) |= (1 << out_mp[id].pin);
 }
 
 __attribute((always_inline)) inline void clear_output_Service(out_id id) {
-  *(out_mp[id].register_pointer) &= ~(1 << out_mp[id].pin);  
+  *(uint8_t*)(out_mp[id].register_pointer) &= ~(1 << out_mp[id].pin);  
 }
 
 __attribute((always_inline)) inline void flip_output_Service(out_id id) {
-  *(out_mp[id].register_pointer) ^= (1 << out_mp[id].pin);  
+  *(uint8_t*)(out_mp[id].register_pointer) ^= (1 << out_mp[id].pin);  
 }
 
 __attribute((always_inline)) inline int test_input_Service(in_id id) {
-  return (!(*(in_mp[id].register_pointer) & (1 << in_mp[id].pin)));
+  return (!(*(uint8_t*)(in_mp[id].register_pointer) & (1 << in_mp[id].pin)));
 }
 //==============================================================================
 
