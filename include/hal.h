@@ -10,11 +10,11 @@
 #define HAL_H
 
 typedef enum output_devices_identifiers {
-  LED_A, LED_B, LED_C, LED_D, LED_E, END_OUTPUT_DEVICES
+  LED_A, LED_B, LED_C, LED_D, LED_E, LED_F, END_OUTPUT_DEVICES
 } out_id;
 
 typedef enum input_devices_identifiers {
-  PUSH_BUTTON_A, PUSH_BUTTON_B, END_INPUT_DEVICES
+  PUSH_BUTTON_A, PUSH_BUTTON_B, PUSH_BUTTON_C, END_INPUT_DEVICES
 } in_id;
 //==============================================================================
 
