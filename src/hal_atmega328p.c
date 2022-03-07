@@ -2,16 +2,16 @@
 
 
 #include "../include/hal.h"
-#include "../include/GPIO_Pin_Register_Model.h"
+#include "../include/GPIO_Register_Pins_Model.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
 // MAPEAMENTO DOS DISPOSITIVOS EM PINOS DE I/O E SETUP
 //==============================================================================
-output_devices_pin_mapper out_mp;
-input_devices_pin_mapper in_mp;
+output_devices_pins_mapper out_mp;
+input_devices_pins_mapper in_mp;
 
-void setup_output_devices_pin_mapper(void) {
+void setup_output_devices_pins_mapper(void) {
   MAP_IO(out_mp, LED_A, &PORTB, PB0);
   MAP_IO(out_mp, LED_B, &PORTB, PB1);
   MAP_IO(out_mp, LED_C, &PORTB, PB2);
@@ -19,7 +19,7 @@ void setup_output_devices_pin_mapper(void) {
   MAP_IO(out_mp, LED_E, &PORTB, PB4);
 }
 
-void setup_input_devices_pin_mapper(void) {
+void setup_input_devices_pins_mapper(void) {
   MAP_IO(in_mp, PUSH_BUTTON_A, &PINC, PC6);
   MAP_IO(in_mp, PUSH_BUTTON_B, &PIND, PD6);
 }
@@ -44,8 +44,8 @@ void setup_hardware_Service(void) {
   PCMSK1 = 0b01000000;
   PCMSK2 = 0b01000000;
 
-  setup_output_devices_pin_mapper();
-  setup_input_devices_pin_mapper();
+  setup_output_devices_pins_mapper();
+  setup_input_devices_pins_mapper();
   sei();
 }
 //==============================================================================
@@ -53,19 +53,19 @@ void setup_hardware_Service(void) {
 // ACESSO À BITS
 //==============================================================================
 __attribute((always_inline)) inline void set_output_Service(out_id id) {
-  *(uint8_t*)(out_mp[id].register_pointer) |= (1 << out_mp[id].pin);
+  *(uint8_t*)(out_mp[id].register_pointer) |= (1 << out_mp[id].pins);
 }
 
 __attribute((always_inline)) inline void clear_output_Service(out_id id) {
-  *(uint8_t*)(out_mp[id].register_pointer) &= ~(1 << out_mp[id].pin);  
+  *(uint8_t*)(out_mp[id].register_pointer) &= ~(1 << out_mp[id].pins);  
 }
 
 __attribute((always_inline)) inline void flip_output_Service(out_id id) {
-  *(uint8_t*)(out_mp[id].register_pointer) ^= (1 << out_mp[id].pin);  
+  *(uint8_t*)(out_mp[id].register_pointer) ^= (1 << out_mp[id].pins);  
 }
 
 __attribute((always_inline)) inline int test_input_Service(in_id id) {
-  return (!(*(uint8_t*)(in_mp[id].register_pointer) & (1 << in_mp[id].pin)));
+  return (!(*(uint8_t*)(in_mp[id].register_pointer) & (1 << in_mp[id].pins)));
 }
 //==============================================================================
 

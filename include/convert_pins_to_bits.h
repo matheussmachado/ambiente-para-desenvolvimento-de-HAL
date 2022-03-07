@@ -1,1 +1,1 @@
-int convert_pins_to_bits(int num_pins, int pins[]);
+unsigned int convert_pins_to_bits(unsigned int num_pins, unsigned int pins[]);
