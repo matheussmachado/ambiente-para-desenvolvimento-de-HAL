@@ -1,11 +1,16 @@
 # Makefile: compilação dos testes
+CC = gcc
+SRC1 = ../src/convert_pins_to_bits.c test_convert_pins_to_bits.c
+SRC2 = ../src/convert_pins_to_bits.c ../include/GPIO_Register_Pins_Model.h test_mapping_and_GPIO_access.c 
+UNITY = ../ext/Unity/unity.c
+TARGET = tests.x
 
-all:	test_convert_pins_to_bits.x
-
-test_convert_pins_to_bits.x:	test_convert_pins_to_bits.c
-		gcc test_convert_pins_to_bits.c ../src/convert_pins_to_bits.c ../ext/Unity/unity.c -o test_convert_pins_to_bits.x -lm
-		./test_convert_pins_to_bits.x
-		rm test_convert_pins_to_bits.x
+tests.x:	$(SRC1) $(SRC2)
+		$(CC) $(SRC1) $(UNITY) -o $(TARGET) -lm
+		./$(TARGET)
+		$(CC) $(SRC2) $(UNITY) -o $(TARGET) -lm
+		./$(TARGET)
+		rm $(TARGET)
 
 clean:	
-		rm test_convert_pins_to_bits.x
+		rm $(TARGET)

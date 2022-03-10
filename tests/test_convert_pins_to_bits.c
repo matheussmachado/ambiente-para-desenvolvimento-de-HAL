@@ -14,6 +14,10 @@
 void setUp(void) {};
 void tearDown(void) {};
 
+void test_that_the_conversion_of_PB0_is_different_from_0(void) {
+  TEST_ASSERT_NOT_EQUAL(0, convert_pins_to_bits(1, PINS{PB0}));
+}
+
 void test_one_pin_conversions(void) {
   TEST_ASSERT_EQUAL(0b00000001, convert_pins_to_bits(1, PINS{PB0}));
   TEST_ASSERT_EQUAL(0b00000010, convert_pins_to_bits(1, PINS{PB1}));
@@ -38,6 +42,7 @@ void test_three_pins_conversions(void) {
 
 int main(void) {
   UNITY_BEGIN();
+  RUN_TEST(test_that_the_conversion_of_PB0_is_different_from_0);
   RUN_TEST(test_one_pin_conversions);
   RUN_TEST(test_two_pins_conversions);
   RUN_TEST(test_three_pins_conversions);
