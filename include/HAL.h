@@ -10,7 +10,7 @@
 #define HAL_H
 
 typedef enum output_devices_identifiers {
-  LED_A, LED_B, LED_C, LED_D, LED_E, LED_F, LED_G, LED_H, LED_BLOCK, END_OUTPUT_DEVICES
+  LED_A, LED_B, LED_C, LED_D, LED_E, LED_F, LED_G, LED_BLOCK_A, LED_BLOCK_B,  END_OUTPUT_DEVICES
 } out_id;
 
 typedef enum input_devices_identifiers {

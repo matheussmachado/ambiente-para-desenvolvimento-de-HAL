@@ -8,7 +8,7 @@ int main(void) {
   one_milisec_interrupt_Service(f_one_milisec_timer);
   push_button_B_interrupt_Service(control_LED_D);
   push_button_A_interrupt_Service(control_LED_E);
-  push_button_F_interrupt_Service(control_LED_BLOCK);
+  push_button_F_interrupt_Service(control_LED_BLOCK_A);
   setup_variables();
   while(1) continue;
   return 0;
@@ -26,25 +26,19 @@ void f_one_milisec_timer(void) {
   static int read = 0;
   read = read_inputs_Service(PUSH_BUTTON_BLOCK);
   switch (read) {
-  case PIN_PUSH_BUTTON_D:  
+  case PIN_PUSH_BUTTON_D: //implementar um get_pin(PIN_PUSH_BUTTON_D) ???
     set_outputs_Service(LED_F);
     clear_outputs_Service(LED_G);
-    clear_outputs_Service(LED_H);
     break;
   case PIN_PUSH_BUTTON_E:
-    set_outputs_Service(LED_H);
-    clear_outputs_Service(LED_F);
-    clear_outputs_Service(LED_G);
-    break;
-  case (PIN_PUSH_BUTTON_D | PIN_PUSH_BUTTON_E):
     set_outputs_Service(LED_G);
     clear_outputs_Service(LED_F);
-    clear_outputs_Service(LED_H);
     break;
-  default: 
-    clear_outputs_Service(LED_F);
-    clear_outputs_Service(LED_G);
-    clear_outputs_Service(LED_H);
+  case (PIN_PUSH_BUTTON_D | PIN_PUSH_BUTTON_E): // == PIN_PUSH_BUTTON_BLOCK
+    set_outputs_Service(LED_BLOCK_B);
+    break;
+  default:
+    clear_outputs_Service(LED_BLOCK_B);
     break;
   }  
 }
@@ -90,6 +84,6 @@ void control_LED_E(void) {
   control_output_via_input_trigger(PUSH_BUTTON_B, LED_E);
 }
 
-void control_LED_BLOCK(void) {
-  control_output_via_input_trigger(PUSH_BUTTON_C, LED_BLOCK);
+void control_LED_BLOCK_A(void) {
+  control_output_via_input_trigger(PUSH_BUTTON_C, LED_BLOCK_A);
 }

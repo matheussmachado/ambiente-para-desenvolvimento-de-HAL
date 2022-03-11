@@ -1,4 +1,4 @@
-#include "../include/hal.h"
+#include "../include/HAL.h"
 #include "../include/convert_pins_to_bits.h"
 
 #define NUM_OUTPUT_DEVICES END_OUTPUT_DEVICES
@@ -7,7 +7,7 @@
 
 typedef struct {
   volatile void* register_pointer;
-  unsigned int pins; //binário que representa os bits de um registrador
+  unsigned char pins; //binário que representa os bits de um registrador (o tipo/tamanho vai variar de acordo com o MCU)
 } GPIO_Register_Pins;
 
 typedef GPIO_Register_Pins output_devices_pins_mapper[NUM_OUTPUT_DEVICES];

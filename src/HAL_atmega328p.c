@@ -1,6 +1,6 @@
 /* IMPLEMENTAÇÃO DE UMA HAL PARA O ATMEGA328P, OBEDECENDO A INTERFACE EXPOSTA EM hal.h */
 
-#include "../include/hal.h"
+#include "../include/HAL.h"
 #include "../include/GPIO_Register_Pins_Model.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -11,15 +11,15 @@ output_devices_pins_mapper out_mp;
 input_devices_pins_mapper in_mp;
 
 void setup_output_devices_pins_mapper(void) {
-  MAP_IO(out_mp, LED_A, &PORTB, (PINS{PB5}));
-  MAP_IO(out_mp, LED_B, &PORTC, (PINS{PC0}));
-  MAP_IO(out_mp, LED_C, &PORTC, (PINS{PC1}));
+  MAP_IO(out_mp, LED_A, &PORTB, (PINS{PB2}));
+  MAP_IO(out_mp, LED_B, &PORTB, (PINS{PB3}));
+  MAP_IO(out_mp, LED_C, &PORTB, (PINS{PB4}));
   MAP_IO(out_mp, LED_D, &PORTC, (PINS{PC2}));
   MAP_IO(out_mp, LED_E, &PORTC, (PINS{PC3}));
   MAP_IO(out_mp, LED_F, &PORTB, (PINS{PB0}));
   MAP_IO(out_mp, LED_G, &PORTB, (PINS{PB1}));
-  MAP_IO(out_mp, LED_H, &PORTB, (PINS{PB2}));
-  MAP_IO(out_mp, LED_BLOCK, &PORTD, (PINS{PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7}));
+  MAP_IO(out_mp, LED_BLOCK_B, &PORTB, (PINS{PB0, PB1}));
+  MAP_IO(out_mp, LED_BLOCK_A, &PORTD, (PINS{PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7}));
 }
 
 void setup_input_devices_pins_mapper(void) {
@@ -35,7 +35,7 @@ void setup_hardware_Service(void) {
   // GPIOS
   DDRB = 0b00111111;
   PORTB = 0b00000000;
-  DDRC = 0b00001111;
+  DDRC = 0b00001100;
   PORTC = 0b01110000;
   DDRD = 0xFF;
 

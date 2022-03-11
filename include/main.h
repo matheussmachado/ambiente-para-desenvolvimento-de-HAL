@@ -1,4 +1,4 @@
-#include "../include/hal.h"
+#include "../include/HAL.h"
 
 void control_output_via_input_trigger(in_id input ,out_id output) {
   unsigned char input_triggered = 0;
@@ -17,5 +17,5 @@ void f_one_sec_timer(void);
 void f_one_milisec_timer(void);
 void control_LED_D(void);
 void control_LED_E(void);
-void control_LED_BLOCK(void);
+void control_LED_BLOCK_A(void);
 void setup_variables(void);
