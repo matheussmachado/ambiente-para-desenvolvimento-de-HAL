@@ -1,124 +1,89 @@
 #include "../ext/Unity/unity.h"
-#include "../include/GPIO_Register_Pins_Model.h"
-#include <stdio.h>
+#include "HAL_mock.h"
 
-// CRIAÇÃO DE AMBIENTE PARA TESTES
-//==============================================================================
-#define PB0     0
-#define PB1     1
-#define PB2     2
-#define PB3     3
-#define PB4     4
-#define PB5     5
-#define PB6     6
-#define PB7     7
-
-typedef enum output_devices_ids {
-  LED_XA, LED_XB, DISPLAY_SEVEN, FOUR_BAR_LED, END_OUTPUT_DEV_TEST
-} out_dev_id;
-
-typedef enum input_devices_ids {
-  SIDE_SENSORS, END_INPUT_DEV_TEST
-} oin_dev_id;
-
-typedef GPIO_Register_Pins output_devices_pins_mapper_test[END_OUTPUT_DEV_TEST];
-output_devices_pins_mapper_test out_mp_test;
-typedef GPIO_Register_Pins input_devices_pins_mapper_test[END_INPUT_DEV_TEST];
-output_devices_pins_mapper_test in_mp_test;
-int PORTx_Mock;
-//==============================================================================
-
-void setUp(void) {
-  output_devices_pins_mapper_test out_mp_test;
-  int PORTx_Mock = 0;
+void setUp(void) {  
+  PINB_Mock = 0;
+  PORTB_Mock = 0;
 };
 
 void tearDown(void) {};
 
 void test_1_pin_conversion_and_assignment(void) {  
-  MAP_IO(out_mp_test, LED_XA, &PORTx_Mock, PINS{PB0});
+  MAP_IO(out_mp_test, LED_XA, &PORTB_Mock, PINS{PB0});
   TEST_ASSERT_EQUAL(0b00000001, out_mp_test[LED_XA].pins);
 }
 
 void test_multi_pin_conversion_and_assignment(void) {    
-  MAP_IO(out_mp_test, DISPLAY_SEVEN, &PORTx_Mock, (PINS{PB0, PB1, PB2, PB3, PB4, PB5, PB6, PB7}));
+  MAP_IO(out_mp_test, DISPLAY_SEVEN, &PORTB_Mock, (PINS{PB0, PB1, PB2, PB3, PB4, PB5, PB6, PB7}));
   TEST_ASSERT_EQUAL(0b11111111, out_mp_test[DISPLAY_SEVEN].pins);
 }
 
 void test_set_bits(void) {
-  MAP_IO(out_mp_test, FOUR_BAR_LED, &PORTx_Mock, (PINS{PB0, PB2, PB4, PB6}));
-  *(int*)(out_mp_test[FOUR_BAR_LED].register_pointer) |= out_mp_test[FOUR_BAR_LED].pins; //set bits
-  TEST_ASSERT_EQUAL(0b01010101, PORTx_Mock);
+  MAP_IO(out_mp_test, FOUR_BAR_LED, &PORTB_Mock, (PINS{PB0, PB2, PB4, PB6}));
+  set_output_Service(FOUR_BAR_LED);
+  TEST_ASSERT_EQUAL(0b01010101, PORTB_Mock);
 }
 
 void test_clear_bits_does_not_corrupt_port_value(void) {
-  MAP_IO(out_mp_test, FOUR_BAR_LED, &PORTx_Mock, (PINS{PB0, PB2, PB4, PB6}));  
-  PORTx_Mock |= 0b11111111; //init port  
-  *(int*)(out_mp_test[FOUR_BAR_LED].register_pointer) &= ~(out_mp_test[FOUR_BAR_LED].pins); //clear bits
-  TEST_ASSERT_EQUAL(0b10101010, PORTx_Mock);
+  MAP_IO(out_mp_test, FOUR_BAR_LED, &PORTB_Mock, (PINS{PB0, PB2, PB4, PB6}));  
+  PORTB_Mock |= 0b11111111; //init port  
+  clear_outputs_Service(FOUR_BAR_LED);
+  TEST_ASSERT_EQUAL(0b10101010, PORTB_Mock);
 }
 
 void test_flip_bits(void) {
-  MAP_IO(out_mp_test, FOUR_BAR_LED, &PORTx_Mock, (PINS{PB0, PB2, PB4, PB6}));  
-  PORTx_Mock |= 0b11111111; //init port  
-  *(int*)(out_mp_test[FOUR_BAR_LED].register_pointer) ^= out_mp_test[FOUR_BAR_LED].pins; //flip bits
-  TEST_ASSERT_EQUAL(0b10101010, PORTx_Mock);
-  *(int*)(out_mp_test[FOUR_BAR_LED].register_pointer) ^= out_mp_test[FOUR_BAR_LED].pins; //flip bits
-  TEST_ASSERT_EQUAL(0b11111111, PORTx_Mock);
-}
-
-void test_bits_test_is_true(void) {
-  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTx_Mock, (PINS{PB3, PB4}));
-  *(int*)(out_mp_test[FOUR_BAR_LED].register_pointer) |= in_mp_test[SIDE_SENSORS].pins; //sensors setted
-  TEST_ASSERT_TRUE(PORTx_Mock & in_mp_test[SIDE_SENSORS].pins);
-}
-
-void test_bits_test_is_false(void) {
-  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTx_Mock, (PINS{PB3, PB4}));  
-  PORTx_Mock = 0; //sensors not setted
-  TEST_ASSERT_FALSE(PORTx_Mock & in_mp_test[SIDE_SENSORS].pins);
-}
-
-void test_bits_test_with_different_port_and_mask_fail(void) {
-  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTx_Mock, (PINS{PB3, PB4}));  
-  PORTx_Mock = 0b11000000; //no sensors were triggered
-  // 0b11000000
-  // 0b00011000 &
-  // ------------
-  // 0b00000000
-  TEST_ASSERT_FALSE(PORTx_Mock & in_mp_test[SIDE_SENSORS].pins);
-}
-
-void test_bit_test_with_nearly_equal_port_and_mask_pass(void) {
-  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTx_Mock, (PINS{PB3, PB4}));  
-  PORTx_Mock = 0b00010000; //only 1 sensor was triggered
-  // PINx   ->   0b00010000
-  // SENS   ->   0b00011000 &
-  // -------------------------
-  // RES    ->   0b00010000
-  TEST_ASSERT_TRUE(PORTx_Mock & in_mp_test[SIDE_SENSORS].pins);
+  MAP_IO(out_mp_test, FOUR_BAR_LED, &PORTB_Mock, (PINS{PB0, PB2, PB4, PB6}));  
+  PORTB_Mock |= 0b11111111; //init port  
+  flip_outputs_Service(FOUR_BAR_LED);
+  TEST_ASSERT_EQUAL(0b10101010, PORTB_Mock);
+  
+  flip_outputs_Service(FOUR_BAR_LED);
+  TEST_ASSERT_EQUAL(0b11111111, PORTB_Mock);
 }
 
 void test_bit_reading_passes(void) {
-  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTx_Mock, (PINS{PB3, PB4}));  
-  PORTx_Mock = 0b00010000;
-  unsigned int read = PORTx_Mock & in_mp_test[SIDE_SENSORS].pins;
+  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTB_Mock, (PINS{PB3, PB4}));  
+  PORTB_Mock = 0b00010000;
+  unsigned int read = read_inputs_Service(SIDE_SENSORS);
   TEST_ASSERT_EQUAL(0b00010000, read);
-  PORTx_Mock = 0b00011000;
-  read = PORTx_Mock & in_mp_test[SIDE_SENSORS].pins;
+  
+  PORTB_Mock = 0b00011000;
+  read = read_inputs_Service(SIDE_SENSORS);
   TEST_ASSERT_EQUAL(0b00011000, read);
-  PORTx_Mock = 0b00001000;
-  read = PORTx_Mock & in_mp_test[SIDE_SENSORS].pins;
+  
+  PORTB_Mock = 0b00001000;
+  read = read_inputs_Service(SIDE_SENSORS);
   TEST_ASSERT_EQUAL(0b00001000, read);
 }
 
 void test_bit_reading_fails(void) {
-  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTx_Mock, (PINS{PB3, PB4}));  
-  PORTx_Mock = 0b01000000;
-  unsigned int read = PORTx_Mock & in_mp_test[SIDE_SENSORS].pins;
+  MAP_IO(in_mp_test, SIDE_SENSORS, &PORTB_Mock, (PINS{PB3, PB4}));  
+  PORTB_Mock = 0b01000000;
+  unsigned int read = read_inputs_Service(SIDE_SENSORS);
   TEST_ASSERT_NOT_EQUAL(0b00011000, read);
   TEST_ASSERT_NOT_EQUAL(0b00001000, read);
   TEST_ASSERT_NOT_EQUAL(0b00010000, read);
+}
+
+void test_get_single_input_device_pin(void) {
+  MAP_IO(in_mp_test, RIGHT_SNSR, &PINB_Mock, (PINS{PB0}));
+  MAP_IO(in_mp_test, LEFT_SNSR, &PINB_Mock, (PINS{PB1}));
+  char pins = get_input_pins_Service(RIGHT_SNSR);
+  TEST_ASSERT_EQUAL(0b00000001, pins);
+  
+  pins = get_input_pins_Service(LEFT_SNSR);
+  TEST_ASSERT_EQUAL(0b00000010, pins);
+}
+
+void test_composite_device_pins_are_the_same_as_single_input_device_pins(void) {
+  MAP_IO(in_mp_test, RIGHT_SNSR, &PINB_Mock, (PINS{PB0}));
+  MAP_IO(in_mp_test, LEFT_SNSR, &PINB_Mock, (PINS{PB1}));
+  MAP_IO(in_mp_test, SIDE_SENSORS, &PINB_Mock, (PINS{PB0, PB1}));
+  char right_snsr_pin = get_input_pins_Service(RIGHT_SNSR);
+  char left_snsr_pin = get_input_pins_Service(LEFT_SNSR);
+  char lateral_snsr_pins = get_input_pins_Service(SIDE_SENSORS);
+  char composite_side_sensor_pins = (right_snsr_pin | left_snsr_pin);
+  TEST_ASSERT_EQUAL(lateral_snsr_pins, composite_side_sensor_pins);
 }
 
 int main(void) {
@@ -128,11 +93,9 @@ int main(void) {
   RUN_TEST(test_set_bits);
   RUN_TEST(test_clear_bits_does_not_corrupt_port_value);
   RUN_TEST(test_flip_bits);
-  RUN_TEST(test_bits_test_is_true);
-  RUN_TEST(test_bits_test_is_false);
-  RUN_TEST(test_bits_test_with_different_port_and_mask_fail);
-  RUN_TEST(test_bit_test_with_nearly_equal_port_and_mask_pass);
   RUN_TEST(test_bit_reading_passes);
   RUN_TEST(test_bit_reading_fails);
+  RUN_TEST(test_get_single_input_device_pin);
+  RUN_TEST(test_composite_device_pins_are_the_same_as_single_input_device_pins);
   return UNITY_END();
 }

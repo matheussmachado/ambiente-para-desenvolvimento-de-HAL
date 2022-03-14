@@ -1,15 +1,15 @@
 # Makefile: compilação dos testes
 CC = gcc
 SRC1 = ../src/convert_pins_to_bits.c test_convert_pins_to_bits.c
-SRC2 = ../src/convert_pins_to_bits.c ../include/GPIO_Register_Pins_Model.h test_mapping_and_GPIO_access.c 
+SRC2 = test_mapping_and_GPIO_access.c ../src/convert_pins_to_bits.c HAL_mock.h ../include/GPIO_register_pins_model.h samples.h  
 UNITY = ../ext/Unity/unity.c
 TARGET = tests.x
 
 tests.x:	$(SRC1) $(SRC2)
-		$(CC) $(SRC1) $(UNITY) -o $(TARGET) -lm
+		$(CC) $(SRC1) $(UNITY) -o $(TARGET)
 		./$(TARGET)
-		$(CC) $(SRC2) $(UNITY) -o $(TARGET) -lm
-		./$(TARGET)
+		$(CC) $(SRC2) $(UNITY) -o $(TARGET)
+		./$(TARGET)		
 		rm $(TARGET)
 
 clean:	

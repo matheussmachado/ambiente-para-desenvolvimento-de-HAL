@@ -1,12 +1,15 @@
-/* IMPLEMENTAÇÃO DE UMA HAL PARA O ATMEGA328P, OBEDECENDO A INTERFACE EXPOSTA EM hal.h */
+/* IMPLEMENTAÇÃO DE UMA HAL PARA O ATMEGA328P, OBEDECENDO A INTERFACE EXPOSTA EM HAL.h */
 
-#include "../include/HAL.h"
-#include "../include/GPIO_Register_Pins_Model.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "../include/HAL.h"
+#include "../include/GPIO_register_pins_model.h"
 
 // MAPEAMENTO DOS DISPOSITIVOS EM PINOS DE I/O E SETUP
 //==============================================================================
+typedef GPIORegisterPins output_devices_pins_mapper[NUM_OUTPUT_DEVICES];
+typedef GPIORegisterPins input_devices_pins_mapper[NUM_INPUT_DEVICES];
+
 output_devices_pins_mapper out_mp;
 input_devices_pins_mapper in_mp;
 
@@ -32,7 +35,7 @@ void setup_input_devices_pins_mapper(void) {
 }
 
 void setup_hardware_Service(void) {
-  // GPIOS
+  // GPIOs
   DDRB = 0b00111111;
   PORTB = 0b00000000;
   DDRC = 0b00001100;
@@ -73,13 +76,16 @@ __attribute((always_inline)) inline void flip_outputs_Service(out_id id) {
   *(uint8_t*)(out_mp[id].register_pointer) ^= out_mp[id].pins;
 }
 
-__attribute((always_inline)) inline int test_input_Service(in_id id) {
+__attribute((always_inline)) inline char test_input_Service(in_id id) {
   return (!(*(uint8_t*)(in_mp[id].register_pointer) & in_mp[id].pins));
 }
 
 __attribute((always_inline)) inline int read_inputs_Service(in_id id) {
-  // comportamento esperado caso desabilitado o resistor de pull up do pino em questão
-  return (int)(*(uint8_t*)(in_mp[id].register_pointer) & in_mp[id].pins);
+  return (*(uint8_t*)(in_mp[id].register_pointer) & in_mp[id].pins);
+}
+
+__attribute((always_inline)) inline int get_inputs_device_pins_Service(in_id id) {
+  return (in_mp[id].pins);
 }
 //==============================================================================
 
